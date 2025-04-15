@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Event Registrations{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Event Registrations</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">{{ event.title }} - Registrations</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Date:</strong> {{ event.event_date.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        <p><strong>Location:</strong> {{ event.location }}</p>
+        <p><strong>Capacity:</strong> {{ event.registration_count }}/{{ event.capacity }}</p>
+        <p><strong>Created by:</strong> {{ event.creator.username }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        <div class="d-flex justify-content-between">
+            <h3 class="mb-0">Registered Participants</h3>
+            <button class="btn btn-sm btn-light" onclick="exportToCSV()">Export to CSV</button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if registrations %}
+            <div class="table-responsive">
+                <table class="table table-striped" id="registrationsTable">
+                    <thead>
+                        <tr>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Middle Name</th>
+                            <th>School Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Registration Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in registrations %}
+                            <tr>
+                                <td>{{ reg.lastname }}</td>
+                                <td>{{ reg.firstname }}</td>
+                                <td>{{ reg.middlename or '-' }}</td>
+                                <td>{{ reg.school_name or '-' }}</td>
+                                <td>{{ reg.email }}</td>
+                                <td>{{ reg.phone }}</td>
+                                <td>{{ reg.registration_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <p>No registrations for this event yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function exportToCSV() {
+        const table = document.getElementById('registrationsTable');
+        if (!table) return;
+        
+        let csv = [];
+        // Get headers
+        const headers = [];
+        const headerCells = table.querySelectorAll('thead th');
+        headerCells.forEach(cell => headers.push(cell.textContent.trim()));
+        csv.push(headers.join(','));
+        
+        // Get rows
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const rowData = [];
+            const cells = row.querySelectorAll('td');
+            cells.forEach(cell => {
+                // Wrap in quotes and escape any quotes in the data
+                let cellData = cell.textContent.trim();
+                cellData = cellData.replace(/"/g, '""'); // Escape quotes
+                rowData.push(`"${cellData}"`);
+            });
+            csv.push(rowData.join(','));
+        });
+        
+        // Create a CSV file
+        const csvContent = csv.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const filename = '{{ event.title }}_registrations_{{ event.event_date.strftime("%Y%m%d") }}.csv';
+        
+        // Create a link to download the CSV
+        if (navigator.msSaveBlob) {
+            // For IE
+            navigator.msSaveBlob(blob, filename);
+        } else {
+            // For modern browsers
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+</script>
+{% endblock %} 

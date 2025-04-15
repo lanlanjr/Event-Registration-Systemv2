@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Register for {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Register for {{ event.title }}</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Date:</strong> {{ event.event_date.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                <p><strong>Location:</strong> {{ event.location }}</p>
+                <p><strong>Capacity:</strong> {{ event.registration_count }}/{{ event.capacity }}</p>
+                
+                {% if event.description %}
+                    <p>{{ event.description }}</p>
+                {% endif %}
+                
+                <hr>
+                
+                <form method="POST" novalidate>
+                    <!-- Last Name -->
+                    <div class="mb-3">
+                        <label for="lastname" class="form-label">Last Name*</label>
+                        <input type="text" class="form-control" id="lastname" name="lastname" required>
+                    </div>
+                    
+                    <!-- First Name -->
+                    <div class="mb-3">
+                        <label for="firstname" class="form-label">First Name*</label>
+                        <input type="text" class="form-control" id="firstname" name="firstname" required>
+                    </div>
+                    
+                    <!-- Middle Name (Optional) -->
+                    <div class="mb-3">
+                        <label for="middlename" class="form-label">Middle Name</label>
+                        <input type="text" class="form-control" id="middlename" name="middlename">
+                    </div>
+                    
+                    <!-- School Name (Optional) -->
+                    <div class="mb-3">
+                        <label for="school_name" class="form-label">School Name</label>
+                        <input type="text" class="form-control" id="school_name" name="school_name">
+                        <div class="form-text">Optional, but provided for outside campus participants</div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email*</label>
+                        <input type="email" class="form-control" id="email" name="email" required 
+                               pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
+                        <div class="form-text">Must be a valid email format (example@domain.com)</div>
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone Number*</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" required 
+                               pattern="09[0-9]{9}">
+                        <div class="form-text">Must be 11 digits starting with 09</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p><small>Fields marked with * are required</small></p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        // Validate email
+        const emailInput = document.getElementById('email');
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(emailInput.value)) {
+            emailInput.setCustomValidity('Please enter a valid email address');
+        } else {
+            emailInput.setCustomValidity('');
+        }
+        
+        // Validate phone
+        const phoneInput = document.getElementById('phone');
+        const phonePattern = /^09\d{9}$/;
+        if (!phonePattern.test(phoneInput.value)) {
+            phoneInput.setCustomValidity('Phone number must be 11 digits starting with 09');
+        } else {
+            phoneInput.setCustomValidity('');
+        }
+        
+        form.classList.add('was-validated');
+    }, false);
+</script>
+{% endblock %}
+{% endblock %} 

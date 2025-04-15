@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New Event{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Add Event</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Add New Event</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Event Title*</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <!-- Date and Time -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="event_date" class="form-label">Event Date*</label>
+                            <input type="date" class="form-control" id="event_date" name="event_date" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="event_time" class="form-label">Event Time*</label>
+                            <input type="time" class="form-control" id="event_time" name="event_time" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location*</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
+                    </div>
+                    
+                    <!-- Capacity -->
+                    <div class="mb-3">
+                        <label for="capacity" class="form-label">Capacity*</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" min="1" required>
+                        <div class="form-text">Maximum number of attendees</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p><small>Fields marked with * are required</small></p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Create Event</button>
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        // Validate event date is in future
+        const dateInput = document.getElementById('event_date');
+        const timeInput = document.getElementById('event_time');
+        if (dateInput.value && timeInput.value) {
+            const eventDate = new Date(`${dateInput.value}T${timeInput.value}`);
+            const now = new Date();
+            if (eventDate <= now) {
+                dateInput.setCustomValidity('Event must be scheduled in the future');
+            } else {
+                dateInput.setCustomValidity('');
+            }
+        }
+        
+        // Validate capacity is positive
+        const capacityInput = document.getElementById('capacity');
+        if (capacityInput.value <= 0) {
+            capacityInput.setCustomValidity('Capacity must be a positive number');
+        } else {
+            capacityInput.setCustomValidity('');
+        }
+        
+        form.classList.add('was-validated');
+    }, false);
+</script>
+{% endblock %}
+{% endblock %} 

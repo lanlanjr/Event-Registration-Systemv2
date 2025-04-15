@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Event{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Edit Event</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Edit Event</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Event Title*</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ event.title }}" required>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ event.description or '' }}</textarea>
+                    </div>
+                    
+                    <!-- Date and Time -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="event_date" class="form-label">Event Date*</label>
+                            <input type="date" class="form-control" id="event_date" name="event_date" 
+                                   value="{{ event.event_date.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="event_time" class="form-label">Event Time*</label>
+                            <input type="time" class="form-control" id="event_time" name="event_time" 
+                                   value="{{ event.event_date.strftime('%H:%M') }}" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location*</label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ event.location }}" required>
+                    </div>
+                    
+                    <!-- Capacity -->
+                    <div class="mb-3">
+                        <label for="capacity" class="form-label">Capacity*</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" 
+                               value="{{ event.capacity }}" min="{{ event.registration_count }}" required>
+                        <div class="form-text">
+                            Maximum number of attendees (cannot be less than current registrations: {{ event.registration_count }})
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p><small>Fields marked with * are required</small></p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Update Event</button>
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        // Validate capacity is positive
+        const capacityInput = document.getElementById('capacity');
+        const minCapacity = parseInt("{{ event.registration_count }}");
+        
+        if (parseInt(capacityInput.value) < minCapacity) {
+            capacityInput.setCustomValidity("Capacity cannot be less than current registrations (" + minCapacity + ")");
+        } else if (parseInt(capacityInput.value) <= 0) {
+            capacityInput.setCustomValidity('Capacity must be a positive number');
+        } else {
+            capacityInput.setCustomValidity('');
+        }
+        
+        form.classList.add('was-validated');
+    }, false);
+</script>
+{% endblock %}
+{% endblock %} 

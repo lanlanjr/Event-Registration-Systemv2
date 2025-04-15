@@ -1,0 +1,5 @@
+flask==2.2.3
+flask-sqlalchemy==3.0.3
+mysql-connector-python==8.0.32
+python-dotenv==1.0.0
+Werkzeug==2.2.3 
