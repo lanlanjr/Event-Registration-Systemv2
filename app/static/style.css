@@ -1,9 +1,19 @@
 /* Custom CSS for Event Registration System */
 
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container.mt-4.mb-5 {
+    flex: 1;
+}
+
 /* Footer styling */
 .footer {
-    position: relative;
-    margin-top: 3rem;
+    position: sticky;
+    margin-top: auto;
     bottom: 0;
     width: 100%;
     line-height: 60px;
